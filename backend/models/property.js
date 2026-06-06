@@ -88,6 +88,12 @@ const PropertySchema = new mongoose.Schema(
       type: Date,
     },
 
+    status: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
+},
+
     // 🔥 Agent reference (foreign key to User)
     agent: {
       type: mongoose.Schema.Types.ObjectId,

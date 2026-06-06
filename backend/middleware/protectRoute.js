@@ -30,15 +30,23 @@ export const protectRoute = async (req, res, next) => {
 };
 
 // agent-only (or agent + admin) middleware
-export const verifyAgent = (req, res, next) => {
-  if (req.user?.role === "agent" || req.user?.role === "admin") {
-    return next();
-  }
-  return res.status(403).json({ message: "Forbidden - Agents only" });
-};
+// export const verifyAgent = (req, res, next) => {
+//   if (req.user?.role === "agent" || req.user?.role === "admin") {
+//     return next();
+//   }
+//   return res.status(403).json({ message: "Forbidden - Agents only" });
+// };
 
 // admin middleware
-export const verifyAdmin = (req, res, next) => {
-  if (req.user?.role === "admin") return next();
-  return res.status(403).json({ message: "Forbidden - Admins only" });
-};
+// export const verifyAdmin = (req, res, next) => {
+//   if (req.user?.role === "admin") return next();
+//   return res.status(403).json({ message: "Forbidden - Admins only" });
+// };
+// export const allowRoles = (...roles) => {
+//   return (req, res, next) => {
+//     if (!roles.includes(req.user.role)) {
+//       return res.status(403).json({ message: "Forbidden" });
+//     }
+//     next();
+//   };
+// };

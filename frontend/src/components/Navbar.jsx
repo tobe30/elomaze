@@ -39,7 +39,7 @@ const Navbar = () => {
           </div>
 
           {/* CENTER: Main Links */}
-          <div className="flex-1 flex justify-center gap-6 flex-wrap font-medium text-black">
+          <div className="flex-1 flex justify-center gap-10 flex-wrap font-medium text-black">
             <Link to="/listings" className="hover:text-primary transition">
               Listings
             </Link>
@@ -48,9 +48,6 @@ const Navbar = () => {
             </Link>
             <Link to="/services" className="hover:text-primary transition">
               Services
-            </Link>
-            <Link to="/roomates" className="hover:text-primary transition">
-              Find Roommates
             </Link>
           </div>
 

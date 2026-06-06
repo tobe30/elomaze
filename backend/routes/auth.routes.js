@@ -1,6 +1,7 @@
 import express from 'express';
 import { Login, Logout, Register } from '../controllers/auth.controller.js';
-import { protectRoute, verifyAdmin } from '../middleware/protectRoute.js';
+import { protectRoute } from '../middleware/protectRoute.js';
+import { allowRoles } from '../middleware/rbac.js';
 
 
 
@@ -15,7 +16,7 @@ router.get("/me", protectRoute, (req, res)=>{
 })
 
 // admin-only route example
-router.get("/admin", protectRoute, verifyAdmin, (req, res) => {
+router.get("/admin", protectRoute, allowRoles("admin"), (req, res) => {
   res.status(200).json({ success: true, user: req.user });
 });
 

@@ -5,9 +5,14 @@ import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import cookieParser from "cookie-parser";
 import propertyRoutes from "./routes/property.routes.js";
+import serviceRoutes from "./routes/service.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import connectCloudinary from "./lib/cloudinary.js";
+import verificationRoutes from "./routes/verification.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 
 const app = express();
-
+await connectCloudinary();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
@@ -18,6 +23,11 @@ app.get("/", (req, res) => {
 })
 app.use("/api/auth", authRoutes)
 app.use("/api/property", propertyRoutes)
+app.use("/api/service", serviceRoutes)
+app.use("/api/user", userRoutes)
+app.use("/api/verification", verificationRoutes)
+app.use("/api/chat", chatRoutes);
+
 
 
 const PORT= process.env.PORT || 5000

@@ -3,17 +3,16 @@ import mongoose from "mongoose";
 const UserSchema = new mongoose.Schema(
   {
     // Basic identity
-    fullName: 
+    firstName: 
     { type: String,
       trim: true, 
       default: "" 
     },
 
-    username: {
+    lastName: {
       type: String,
-      default: "" ,
       trim: true,
-      lowercase: true,
+      default: "",
     },
 
     email: {
@@ -41,7 +40,6 @@ const UserSchema = new mongoose.Schema(
         return this.authProvider === "local";
       },
       minlength: 6,
-      select: false,
     },
 
     // Roles
@@ -100,9 +98,7 @@ const UserSchema = new mongoose.Schema(
 
 // Unique indexes
 UserSchema.index({ email: 1 }, { unique: true });
-UserSchema.index({ username: 1 }, { unique: true });
 UserSchema.index({ phone: 1 }, { unique: true, sparse: true });
-
 // Geo index
 UserSchema.index({ lastKnownLocation: "2dsphere" });
 
