@@ -19,21 +19,14 @@ import {
   UserX,
   BadgeCheck,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getAuthUser } from "../../lib/api";
+import ProfileCompletionBanner from "../../components/banners/ProfileCompletionBanner";
+import { isProfileComplete } from "../../utils/profile";
 
-/* ---------------- MOCK DATA ---------------- */
-
-const mockUser = {
-  name: "John Doe",
-  email: "john.doe@email.com",
-  avatar:
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop",
-  role: "agent",
-  location: "Lagos, Nigeria",
-  phone: "+234 801 234 5678",
-  bio: "Real estate professional with 5+ years of experience in Lagos.",
-  isVerified: true,
-  joinDate: "2023-06-15",
-};
+/* ---------------- MOCK DATA - KEPT FOR REFERENCE ---------------- */
+// This is kept only for other sections like posts, services, etc.
+// User data is fetched from API
 
 const mockPosts = [
   {
@@ -134,8 +127,54 @@ export default function MyProfile() {
   const [tab, setTab] = useState("about");
   const [savedSubTab, setSavedSubTab] = useState("posts");
 
+  const { data, isLoading } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: getAuthUser,
+  });
+
+  const user = data?.user || data;
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center gap-3 bg-base-100">
+        <div className="relative">
+          <div className="w-12 h-12 rounded-full border-4 border-base-300"></div>
+          <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin absolute top-0 left-0"></div>
+        </div>
+        <p className="text-sm text-base-content/60 animate-pulse">
+          Loading your profile...
+        </p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Error</h2>
+          <p className="text-gray-600">Could not load user profile</p>
+        </div>
+      </div>
+    );
+  }
+
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const userLocation = user.locationPreference
+    ? `${user.locationPreference.city || ""}, ${user.locationPreference.state || ""}, ${user.locationPreference.country || ""}`.replace(/,\s*,/g, ",").replace(/,\s*$/, "")
+    : "Not specified";
+
   return (
     <div className="min-h-screen bg-base-200">
+      {user && !isProfileComplete(user) && <ProfileCompletionBanner />}
+      
       <div className="max-w-6xl mx-auto p-4">
 {/* PROFILE HEADER */}
 <div className="relative bg-white border border-slate-200 rounded-2xl shadow-sm mb-6 px-6 py-6 min-h-[160px]">
@@ -144,8 +183,8 @@ export default function MyProfile() {
   <div className="flex items-center gap-4">
     <div className="w-14 h-14 rounded-full overflow-hidden border border-slate-200">
       <img
-        src={mockUser.avatar}
-        alt={mockUser.name}
+        src={user.avatarUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop"}
+        alt={user.firstName || "User"}
         className="w-full h-full object-cover"
       />
     </div>
@@ -153,8 +192,8 @@ export default function MyProfile() {
     <div>
       <div className="flex items-center gap-2">
   <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-1">
-    {mockUser.name}
-    {mockUser.isVerified && (
+    {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email}
+    {user.isVerified && (
       <div className="flex items-center justify-center bg-blue-500 rounded-full w-4 h-4 sm:w-5 sm:h-5">
         <BadgeCheck className="text-white w-3 h-3 sm:w-4 sm:h-4" />
       </div>
@@ -164,12 +203,12 @@ export default function MyProfile() {
 
       <div className="flex items-center gap-2 mt-1 text-sm text-slate-500">
         <span className="px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-medium">
-          Agent
+          {user.role || "User"}
         </span>
 
         <span className="flex items-center gap-1">
           <MapPin className="w-4 h-4 text-primary" />
-          Lagos, Nigeria
+          {userLocation}
         </span>
       </div>
     </div>
@@ -266,7 +305,7 @@ export default function MyProfile() {
       {/* Bio */}
       <div>
         <p className="text-sm text-gray-600 leading-relaxed">
-          {mockUser.bio}
+          {user.bio || "No bio added yet"}
         </p>
       </div>
 
@@ -276,26 +315,23 @@ export default function MyProfile() {
       <div className="grid sm:grid-cols-2 gap-y-5 gap-x-10 text-sm">
         <div>
           <p className="text-gray-400 text-xs mb-1">Email</p>
-          <p className="text-gray-800">{mockUser.email}</p>
+          <p className="text-gray-800">{user.email}</p>
         </div>
 
         <div>
           <p className="text-gray-400 text-xs mb-1">Phone</p>
-          <p className="text-gray-800">{mockUser.phone}</p>
+          <p className="text-gray-800">{user.phone || "Not added"}</p>
         </div>
 
         <div>
           <p className="text-gray-400 text-xs mb-1">Location</p>
-          <p className="text-gray-800">{mockUser.location}</p>
+          <p className="text-gray-800">{userLocation}</p>
         </div>
 
         <div>
           <p className="text-gray-400 text-xs mb-1">Member since</p>
           <p className="text-gray-800">
-            {new Date(mockUser.joinDate).toLocaleDateString("en-US", {
-              month: "long",
-              year: "numeric",
-            })}
+            {formatDate(user.createdAt)}
           </p>
         </div>
       </div>

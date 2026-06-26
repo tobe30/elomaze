@@ -1,5 +1,6 @@
 import Conversation from "../models/conversation.js";
 import Rating from "../models/rating.js";
+import { updateTrustScore } from "../utils/calcTrustScore.js";
 
 export const addRating = async (req, res) => {
   try {
@@ -65,9 +66,76 @@ export const addRating = async (req, res) => {
       recommend,
     });
 
+    await updateTrustScore(ratedUser._id); // update trust score after new rating
+
     res.status(201).json(newRating);
   } catch (error) {
     console.log("Error in addRating: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getRatingsForUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const ratings = await Rating.find({ reviewedUser: userId })
+      .populate("rater", "name email profilePic")
+      .sort({ createdAt: -1 });
+
+    // calculate average rating
+    const totalRatings = ratings.length;
+
+    const averageRating =
+      totalRatings > 0
+        ? ratings.reduce((sum, r) => sum + r.rating, 0) / totalRatings
+        : 0;
+
+    res.status(200).json({
+      totalRatings,
+      averageRating: parseFloat(averageRating.toFixed(1)),
+      ratings,
+    });
+  } catch (error) {
+    console.log("Error in getRatingsForUser: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+export const getServiceRatings = async (req, res) => {
+  try {
+    const { serviceId } = req.params;
+
+    // 1. Find all conversations related to this service
+    const conversations = await Conversation.find({
+      service: serviceId,
+    });
+
+    const conversationIds = conversations.map((c) => c._id);
+
+    // 2. Get ratings linked to those conversations
+    const ratings = await Rating.find({
+      conversation: { $in: conversationIds },
+    })
+      .populate("rater", "name avatarUrl")
+      .sort({ createdAt: -1 });
+
+    // 3. Calculate average rating
+    const total = ratings.length;
+
+    const average =
+      total > 0
+        ? ratings.reduce((sum, r) => sum + r.rating, 0) / total
+        : 0;
+
+    res.status(200).json({
+      totalRatings: total,
+      averageRating: parseFloat(average.toFixed(1)),
+      ratings,
+    });
+  } catch (error) {
+    console.log("Error in getServiceRatings:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

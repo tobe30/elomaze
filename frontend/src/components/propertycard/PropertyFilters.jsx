@@ -52,7 +52,7 @@ export default function PropertyFilters({ categories, onSearch, onFilterChange }
             }}
           />
           <SlidersHorizontal
-            className="absolute right-4 text-blue-500  text-xl cursor-pointer hover:text-primary"
+            className="absolute right-4 text-primary  text-xl cursor-pointer hover:text-primary"
             onClick={() => setIsFilterOpen(true)}
           />
         </div>

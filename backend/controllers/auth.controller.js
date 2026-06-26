@@ -125,3 +125,8 @@ export const Logout = (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+//add to frontend login button
+// const loginWithGoogle = () => {
+//   window.location.href = "http://localhost:5000/api/auth/google";
+// };

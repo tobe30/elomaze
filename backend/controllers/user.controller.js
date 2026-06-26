@@ -67,18 +67,10 @@ export const getUserProfile = async (req, res) => {
 //   }
 // };
 
-
 export const updateUserProfile = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { firstName, lastName, phone, email, bio, locationPreference } = req.body;
-
-    if (id !== req.user._id.toString()) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not authorized to update this profile",
-      });
-    }
+     const id = req.user._id;
+    const { firstName, lastName, phone, email, bio, locationPreference, avatarUrl } = req.body;
 
     const updateData = {};
 
@@ -87,10 +79,11 @@ export const updateUserProfile = async (req, res) => {
     if (phone !== undefined) updateData.phone = phone;
     if (email !== undefined) updateData.email = email;
     if (bio !== undefined) updateData.bio = bio;
+    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
 
     if (locationPreference !== undefined) {
       if (locationPreference.country !== undefined) {
-        updateData["locationPreference.country"] = locationPreference.country;
+        updateData["locationPreference.country"] = locationPreference.country;//
       }
       if (locationPreference.state !== undefined) {
         updateData["locationPreference.state"] = locationPreference.state;
@@ -102,6 +95,24 @@ export const updateUserProfile = async (req, res) => {
         updateData["locationPreference.area"] = locationPreference.area;
       }
     }
+
+    // Check if profile is now complete (all required fields filled)
+    const currentUser = await User.findById(id);
+    const finalFirstName = updateData.firstName ?? currentUser.firstName;
+    const finalLastName = updateData.lastName ?? currentUser.lastName;
+    const finalPhone = updateData.phone ?? currentUser.phone;
+    const finalBio = updateData.bio ?? currentUser.bio;
+    const finalAvatarUrl = updateData.avatarUrl ?? currentUser.avatarUrl;
+
+    const isProfileComplete = !!(
+      finalFirstName?.trim() &&
+      finalLastName?.trim() &&
+      finalPhone?.trim() &&
+      finalBio?.trim() &&
+      finalAvatarUrl?.trim()
+    );
+
+    updateData.profileCompleted = isProfileComplete;
 
     const updatedUser = await User.findByIdAndUpdate(id, updateData, {
       new: true,

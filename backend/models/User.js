@@ -54,6 +54,11 @@ const UserSchema = new mongoose.Schema(
     avatarUrl: { type: String, default: "" },
     bio: { type: String, default: "", maxlength: 280 },
 
+    // Email ownership verification
+emailVerified: {
+  type: Boolean,
+  default: false,
+},
     // Trust
     isVerified: { type: Boolean, default: false },
     trustScore: { type: Number, default: 0, min: 0, max: 100},
@@ -92,6 +97,8 @@ const UserSchema = new mongoose.Schema(
     reported: { type: Boolean, default: false, index: true },
 
     lastLoginAt: { type: Date },
+
+    profileCompleted: { type: Boolean, default: false, index: true },
   },
   { timestamps: true }
 );

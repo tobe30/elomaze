@@ -1,7 +1,8 @@
 import express from "express";
 import { approveVerification, getMyVerificationStatus, rejectVerification, submitVerification } from "../controllers/verification.controller.js";
 import upload from "../lib/multer.js";
-import { protectRoute, verifyAdmin } from "../middleware/protectRoute.js";
+import { protectRoute } from "../middleware/protectRoute.js";
+import { allowRoles } from "../middleware/rbac.js";
 
 const router = express.Router();
 
